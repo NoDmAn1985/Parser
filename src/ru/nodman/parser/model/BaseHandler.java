@@ -15,10 +15,8 @@ import java.util.concurrent.Executors;
 
 public class BaseHandler implements Runnable {
     private static final Object LOCK = new Object();
-    private static final String URL = "jdbc:mysql://localhost:3306/parser_base";
-    private static final String PARAMETERS = "?autoReconnect=true&useSSL=false&useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC";
-    private static final String USER = "root";
-    private static final String STRING = "root";
+    private static final String CLASS_FOR_NAME_VALUE = "org.sqlite.JDBC";
+    private static final String URL = "jdbc:sqlite:parser.sqlite";
     private static final String CAPTIONS_QUERY = "select * from main";
     private static final String IMG_EXCEPTIONS_QUERY = "select * from img_exceptions";
     private final long timeZone;
@@ -45,11 +43,11 @@ public class BaseHandler implements Runnable {
         List<Caption> captions = new LinkedList<>();
 
         try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
+            Class.forName(CLASS_FOR_NAME_VALUE);
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
-        try (Connection con = DriverManager.getConnection(URL + PARAMETERS, USER, STRING);
+        try (Connection con = DriverManager.getConnection(URL);
              Statement stmt = con.createStatement();
              ResultSet resultForCaptions = stmt.executeQuery(CAPTIONS_QUERY)) {
 
@@ -80,11 +78,11 @@ public class BaseHandler implements Runnable {
             executor = Executors.newSingleThreadExecutor();
             base.clear();
             try {
-                Class.forName("com.mysql.cj.jdbc.Driver");
+                Class.forName(CLASS_FOR_NAME_VALUE);
             } catch (ClassNotFoundException e) {
                 e.printStackTrace();
             }
-            try (Connection con = DriverManager.getConnection(URL + PARAMETERS, USER, STRING);
+            try (Connection con = DriverManager.getConnection(URL);
                  Statement stmt = con.createStatement()) {
                 statement = stmt;
                 LOCK.notifyAll();

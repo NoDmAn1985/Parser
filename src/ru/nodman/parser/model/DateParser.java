@@ -12,6 +12,7 @@ public class DateParser {
     }
 
     public static LocalDateTime parse(String dateString, String datePattern) {
+        System.out.println("исходная дата = " + dateString);
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(datePattern);
         if (dateString == null) {
             return null;

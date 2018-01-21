@@ -1,24 +1,26 @@
 package ru.nodman.parser.resources;
 
-import com.sun.xml.internal.ws.api.pipe.Engine;
-import javafx.print.Collation;
+import sun.dc.pr.PRError;
 
 import javax.imageio.ImageIO;
-import javax.imageio.stream.FileImageInputStream;
 import javax.swing.*;
 import javax.swing.border.Border;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.FileDescriptor;
 import java.io.IOException;
-import java.util.Collection;
-import java.util.HashMap;
+import java.net.InetSocketAddress;
+import java.net.Proxy;
 
 public class Resources {
     public static final String DATE_PATTERN = "d-M-yyyy, HH:mm";
     public static final String FILE_DATE_PATTERN = "yyyy-MM-dd HH:mm:00.0";
     public static final long TIME_ZONE = 4;
+
+    public static final String PROXY_ADDRESS = "177.33.53.108";
+    public static final int PROXY_PORT = 57287;
+    public static final Proxy PROXY = new Proxy(Proxy.Type.SOCKS,
+            new InetSocketAddress(PROXY_ADDRESS, PROXY_PORT));
 
     public static final int FRAME_HEIGHT = (int) (Toolkit.getDefaultToolkit().getScreenSize().height * 0.9);
     public static final int FRAME_WIDTH = (int) (FRAME_HEIGHT * 0.95);
@@ -69,6 +71,7 @@ public class Resources {
     public static final String PARSER_LINK_ATTR = "href";
     public static final String PARSER_QUALITY_BEGIN = "<b>Качество";
     public static final int THREAD_COUNT = 2;
+    public static final int INFORMATION_MESSAGES_COUNT = 2;
 
     private static ImageIcon imageToIcon(String iconPath, int width, int height) {
         Image newImage = null;

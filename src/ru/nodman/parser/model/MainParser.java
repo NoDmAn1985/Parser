@@ -26,6 +26,7 @@ public class MainParser {
     private List<Caption> captions;
     private ExecutorService executor;
     private Parser parser;
+    private int countForInformationMessages;
 
     public MainParser() {
         captions = BaseHandler.loadCaptions();
@@ -40,6 +41,7 @@ public class MainParser {
         new Thread(baseHandler).start();
 
         oldPageCountToLoad = Resources.OLD_PAGES_COUNT;
+        countForInformationMessages = Resources.INFORMATION_MESSAGES_COUNT;
 
         baseHandler.loadBase(caption);
         countOfLinksInBase = baseHandler.getBaseSize();
@@ -120,6 +122,7 @@ public class MainParser {
             if (!baseHandler.checkLinkInBase(page.getLink())) {
                 if (isOldLink) {
                     --oldPageCountToLoad;
+                    --countForInformationMessages;
                     if (oldPageCountToLoad < 0) {
                         return false;
                     }
@@ -131,7 +134,7 @@ public class MainParser {
             } else {
                 --countOfLinksInBase;
             }
-            if (countOfLinksInBase > 0 && isOldLink) {
+            if (countOfLinksInBase > 0 && isOldLink && countForInformationMessages <= 0) {
                 countOfPagesToSkip = countOfLinksInBase / countOfLinksOnPage - 1;
                 countOfLinksInBase = 0;
                 return false;
