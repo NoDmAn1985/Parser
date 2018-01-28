@@ -26,7 +26,6 @@ public class MainParser {
     private List<Caption> captions;
     private ExecutorService executor;
     private Parser parser;
-    private int countForInformationMessages;
 
     public MainParser() {
         captions = BaseHandler.loadCaptions();
@@ -41,7 +40,6 @@ public class MainParser {
         new Thread(baseHandler).start();
 
         oldPageCountToLoad = Resources.OLD_PAGES_COUNT;
-        countForInformationMessages = Resources.INFORMATION_MESSAGES_COUNT;
 
         baseHandler.loadBase(caption);
         countOfLinksInBase = baseHandler.getBaseSize();
@@ -64,7 +62,6 @@ public class MainParser {
 
         boolean isEnd = false;
         while (!isEnd) {
-            System.out.println("oldPageCountToLoad = " + oldPageCountToLoad);
             ConcurrentLinkedDeque<Page> tempListOfPage = null;
             try {
                 String address = url + String.format(pagePattern, index);
@@ -81,6 +78,11 @@ public class MainParser {
 
             boolean isWrongPages = !addPages(tempListOfPage);
             if (isWrongPages) {
+
+                System.out.println("isWrongPages = " + isWrongPages);
+                System.out.println("countOfPagesToSkip = " + countOfPagesToSkip);
+                System.out.println("oldPageCountToLoad = " + oldPageCountToLoad);
+
                 if (countOfPagesToSkip > 0) {
                     System.out.println("Пропускаю страницы, осталось - " + countOfPagesToSkip);
                     index += countOfPagesToSkip;
@@ -112,17 +114,16 @@ public class MainParser {
     }
 
     private boolean addPages(ConcurrentLinkedDeque<Page> tempListOfPage) {
-        System.out.println(tempListOfPage.size());
-        tempListOfPage.forEach(System.out::println);
+//        System.out.println(tempListOfPage.size());
+//        tempListOfPage.forEach(System.out::println);
 
         for (Page page : tempListOfPage) {
-            System.out.println("имя = " + page.getName());
-            boolean isOldLink = !checkDate(page.getDate());
+            boolean isOldLink = !isNewLink(page.getDate());
+//            System.out.println("isOldLink = " + isOldLink + " имя = " + page.getName());
 
             if (!baseHandler.checkLinkInBase(page.getLink())) {
                 if (isOldLink) {
                     --oldPageCountToLoad;
-                    --countForInformationMessages;
                     if (oldPageCountToLoad < 0) {
                         return false;
                     }
@@ -133,11 +134,11 @@ public class MainParser {
                 executor.execute(page);
             } else {
                 --countOfLinksInBase;
-            }
-            if (countOfLinksInBase > 0 && isOldLink && countForInformationMessages <= 0) {
-                countOfPagesToSkip = countOfLinksInBase / countOfLinksOnPage - 1;
-                countOfLinksInBase = 0;
-                return false;
+                if (countOfLinksInBase > 0 && isOldLink) {
+                    countOfPagesToSkip = countOfLinksInBase / countOfLinksOnPage - 1;
+                    countOfLinksInBase = 0;
+                    return false;
+                }
             }
         }
         return true;
@@ -151,7 +152,7 @@ public class MainParser {
         return captions;
     }
 
-    private boolean checkDate(LocalDateTime date) {
+    private boolean isNewLink(LocalDateTime date) {
         return lastDate.compareTo(date) < 0;
     }
 }

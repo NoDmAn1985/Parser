@@ -12,7 +12,7 @@ public class DateParser {
     }
 
     public static LocalDateTime parse(String dateString, String datePattern) {
-        System.out.println("исходная дата = " + dateString);
+//        System.out.println("исходная дата = " + dateString);
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(datePattern);
         if (dateString == null) {
             return null;
@@ -53,11 +53,11 @@ public class DateParser {
         } else {
             fullDate = dateString;
         }
-        System.out.println(fullDate);
+//        System.out.println(fullDate);
         try {
             return LocalDateTime.parse(fullDate, dateTimeFormatter);
         } catch (RuntimeException e) {
-            System.out.println("Ошибка распознования даты");
+            System.out.println("Ошибка распознования даты - " + fullDate);
             return null;
         }
     }

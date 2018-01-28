@@ -39,26 +39,22 @@ public abstract class Parser {
 //                .timeout(5000)
                 .get();
         Elements elementsOnPage = getLinks(docPage);
-        System.out.println("найдено " + elementsOnPage.size() + " элементов");
+//        System.out.println("найдено " + elementsOnPage.size() + " элементов");
 
         List<Thread> threads = new ArrayList<>();
         for (Element element : elementsOnPage) {
             threads.add(new Thread(() -> {
-                System.out.println(1);
                 String address = getAddress(element);
                 String name = getName(element);
                 LocalDateTime date = null;
                 try {
-                    System.out.println(2);
                     date = getDate(address);
                 } catch (IOException e) {
-                    System.out.println(-3);
                     return;
                 }
-                    System.out.println(3);
                 Link link = new Link(name, address, date);
                 pages.add(new Page(link));
-                System.out.println("Link = " + link);
+//                System.out.println("Link = " + link);
             }));
         }
         for (Thread thread : threads) {
@@ -67,16 +63,16 @@ public abstract class Parser {
         try {
             for (Thread thread : threads) {
                 thread.join();
-                System.out.println("дождался " + thread.getName());
+//                System.out.println("дождался " + thread.getName());
             }
-            System.out.println("дождался всех = " + threads.size());
+//            System.out.println("дождался всех = " + threads.size());
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
         if (pages.isEmpty()) {
             throw new IOException();
         }
-        System.out.println("pages.size() = " + pages.size());
+//        System.out.println("pages.size() = " + pages.size());
         return pages;
     }
 

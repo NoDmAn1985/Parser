@@ -56,7 +56,7 @@ public class Page implements Runnable {
         }
 
         if (image == null) {
-            System.out.println("не сработал: " + url);
+//            System.out.println("не сработал: " + url);
             if (isBigImage) {
                 return Resources.ERROR_404_BIG;
             } else {

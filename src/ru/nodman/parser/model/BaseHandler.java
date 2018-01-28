@@ -56,8 +56,7 @@ public class BaseHandler implements Runnable {
                 captions.add(caption);
                 caption.setName(resultForCaptions.getString("name"));
                 caption.setAddress(resultForCaptions.getString("address"));
-                caption.setDate(LocalDateTime.ofInstant(resultForCaptions.getTimestamp("date").toInstant(),
-                        ZoneId.ofOffset("UTC", ZoneOffset.UTC)));
+                caption.setDate(resultForCaptions.getTimestamp("date").toLocalDateTime());
                 caption.setBaseName(resultForCaptions.getString("base"));
                 caption.setParserName(resultForCaptions.getString("parser_name"));
                 caption.setFirstPage(resultForCaptions.getInt("first_page_index"));
@@ -120,13 +119,15 @@ public class BaseHandler implements Runnable {
 
         try (ResultSet rs = statement.executeQuery(query)) {
             while (rs.next()) {
-                String name = rs.getString(2);
-                String address = rs.getString(3);
-                LocalDateTime date = LocalDateTime.ofInstant(rs.getTimestamp(4).toInstant(),
-                        ZoneId.ofOffset("UTC", ZoneOffset.UTC));
+                String name = rs.getString("name");
+                String address = rs.getString("address");
+                LocalDateTime date = rs.getTimestamp("date").toLocalDateTime();
                 Link link = new Link(name, address, date);
 //                System.out.println(link.hashCode() + " - " + link);
-                base.add(link);
+                boolean isAdded = base.add(link);
+                if (isAdded && caption.getDate().compareTo(link.getDate()) < 0) {
+                    System.out.println("(" + link.hashCode() + ") " + link);
+                }
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -157,7 +158,8 @@ public class BaseHandler implements Runnable {
             System.out.println("есть в базе: " + link);
             return true;
         }
-        System.out.println("ссылка новая: " + link);
+//        System.out.println("ссылка новая: " + link);
+        System.out.println("ссылка новая: (" + link.hashCode() + ") " + link);
         return false;
     }
 

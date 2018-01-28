@@ -68,10 +68,10 @@ public class Downloader {
 //                System.out.println("РЕДИРЕКТ: " + goodLink + " на " + newLink);
                 download(newLink);
             } else {
-                System.out.println("Fail ( " + goodLink + " ), " + connection.getResponseCode() + ", " + connection.getResponseMessage());
+//                System.out.println("Fail ( " + goodLink + " ), " + connection.getResponseCode() + ", " + connection.getResponseMessage());
             }
         } catch (IOException e) {
-            System.out.println("Беда с загрузкой файла: " + goodLink);
+//            System.out.println("Беда с загрузкой файла: " + goodLink);
 //            e.printStackTrace();
         } finally {
             if (connection != null) {
