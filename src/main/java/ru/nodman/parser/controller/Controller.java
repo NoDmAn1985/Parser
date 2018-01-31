@@ -1,15 +1,20 @@
 package ru.nodman.parser.controller;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import ru.nodman.parser.common.Caption;
 import ru.nodman.parser.common.ControlListener;
 import ru.nodman.parser.common.Page;
 import ru.nodman.parser.common.ViewListener;
 import ru.nodman.parser.model.MainParser;
+import ru.nodman.parser.resources.Resources;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class Controller implements ControlListener {
+    private static final Logger LOG = LoggerFactory.getLogger(Resources.LOGGER_NAME);
+
     private List<Page> pages;
     private MainParser mainParser;
     private int index;
@@ -25,7 +30,11 @@ public class Controller implements ControlListener {
         index = 0;
         this.pages = new ArrayList<>();
         mainParser.setControlListener(this);
-        mainParser.parse(caption, pages);
+        try {
+            mainParser.parse(caption, pages);
+        } catch (InterruptedException e) {
+            LOG.error("{}", e);
+        }
 
         Page page = pages.get(index);
         mainParser.saveLink(page, pages.size() - 1 == 0);

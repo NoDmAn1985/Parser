@@ -12,7 +12,6 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -23,7 +22,6 @@ public class MainParser {
     private TreeMap<String, Page> sortedPages;
     private ControlListener controlListener;
     private BaseHandler baseHandler;
-    private String url;
     private int oldPageCountToLoad;
     private LocalDateTime lastDate;
     private int countOfLinksOnPage;
@@ -41,7 +39,7 @@ public class MainParser {
         this.controlListener = controlListener;
     }
 
-    public void parse(Caption caption, List<Page> pages) {
+    public void parse(Caption caption, List<Page> pages) throws InterruptedException {
         baseHandler = new BaseHandler(Resources.TIME_ZONE);
         new Thread(baseHandler).start();
 
@@ -53,7 +51,7 @@ public class MainParser {
         executor = Executors.newFixedThreadPool(Resources.THREAD_COUNT);
 
         sortedPages = new TreeMap<>();
-        url = caption.getAddress();
+        String url = caption.getAddress();
         lastDate = caption.getDate();
         LOG.debug("последняя дата - {}", lastDate);
         int index = caption.getFirstPage();
@@ -68,7 +66,7 @@ public class MainParser {
 
         boolean isEnd = false;
         while (!isEnd) {
-            ConcurrentLinkedDeque<Page> tempListOfPage;
+            Deque<Page> tempListOfPage;
             String address = url + String.format(pagePattern, index);
             LOG.debug("смотрю страницу - {}", address);
             try {
@@ -98,12 +96,7 @@ public class MainParser {
         pages.addAll(sortedPages.values());
         controlListener.updateSize(sortedPages.size());
 
-        try {
-            Thread.sleep(SLEEPING_TIME);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-            return;
-        }
+        Thread.sleep(SLEEPING_TIME);
     }
 
     private Parser setParser(String parserName) throws ClassNotFoundException, IllegalAccessException, InstantiationException, NoSuchMethodException, InvocationTargetException {
@@ -115,14 +108,9 @@ public class MainParser {
         return (Parser) cls.getConstructor(BaseHandler.class).newInstance(baseHandler);
     }
 
-    private boolean addPages(ConcurrentLinkedDeque<Page> tempListOfPage) {
-//        System.out.println(tempListOfPage.size());
-//        tempListOfPage.forEach(System.out::println);
-
+    private boolean addPages(Deque<Page> tempListOfPage) {
         for (Page page : tempListOfPage) {
             boolean isOldLink = !isNewLink(page.getDate());
-//            System.out.println("isOldLink = " + isOldLink + " имя = " + page.getName());
-
             if (!baseHandler.checkLinkInBase(page.getLink())) {
                 if (isOldLink) {
                     --oldPageCountToLoad;

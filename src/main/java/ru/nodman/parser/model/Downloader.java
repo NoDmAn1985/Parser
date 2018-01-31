@@ -1,5 +1,7 @@
 package ru.nodman.parser.model;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import ru.nodman.parser.resources.Resources;
 
 import java.io.*;
@@ -7,6 +9,11 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 public class Downloader {
+    private static final Logger LOG = LoggerFactory.getLogger("logback");
+
+    private Downloader() {
+        // for SonarLint
+    }
 
     public static File download(String link) {
         File file;
@@ -22,14 +29,15 @@ public class Downloader {
         String fileName = System.getProperty("java.io.tmpdir") + Resources.DOWNLOAD_PATH + name;
         file = new File(fileName);
         if (!file.exists()) {
-            file.getParentFile().mkdirs();
+            boolean isDirectoryCreate = file.getParentFile().mkdirs();
+            boolean isFileCreated = false;
             try {
-                file.createNewFile();
+                isFileCreated = file.createNewFile();
             } catch (IOException e) {
-                System.out.println(fileName);
-                e.printStackTrace();
+                LOG.error("не удалось создать файл {}, {}", fileName, e);
             }
             file.deleteOnExit();
+            LOG.debug("isDirectoryCreate && isFileCreated = {}", isDirectoryCreate && isFileCreated);
         }
 
         HttpURLConnection connection = null;
@@ -37,12 +45,9 @@ public class Downloader {
             URL url = new URL(goodLink);
             connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("GET");
-
-//            connection.setRequestProperty("Referer", "google.com");
             String host = url.getHost();
             String serverName = host.substring(host.lastIndexOf('.', host.length() - 5) + 1);
             connection.setRequestProperty("Referer", "http://" + serverName + "/");
-//            connection.setRequestProperty("User-Agent", "Mozilla");
 
             connection.setUseCaches(true);
             connection.setConnectTimeout(10000);
@@ -51,27 +56,21 @@ public class Downloader {
             connection.connect();
 
             if (HttpURLConnection.HTTP_OK == connection.getResponseCode()) {
-                InputStream in = connection.getInputStream();
-                OutputStream writer = new FileOutputStream(fileName);
-                byte buffer[] = new byte[1024];
-                int c = in.read(buffer);
-                while (c > 0) {
-                    writer.write(buffer, 0, c);
-                    c = in.read(buffer);
+                try (InputStream in = connection.getInputStream();
+                     OutputStream writer = new FileOutputStream(fileName)) {
+                    byte[] buffer = new byte[1024];
+                    int c = in.read(buffer);
+                    while (c > 0) {
+                        writer.write(buffer, 0, c);
+                        c = in.read(buffer);
+                    }
                 }
-                writer.flush();
-                writer.close();
-                in.close();
             } else if (HttpURLConnection.HTTP_MOVED_PERM == connection.getResponseCode()) {
                 String newLink = connection.getHeaderField("Location");
-//                System.out.println("РЕДИРЕКТ: " + goodLink + " на " + newLink);
                 download(newLink);
-            } else {
-//                System.out.println("Fail ( " + goodLink + " ), " + connection.getResponseCode() + ", " + connection.getResponseMessage());
             }
         } catch (IOException e) {
-//            System.out.println("Беда с загрузкой файла: " + goodLink);
-//            e.printStackTrace();
+            LOG.error("Беда с загрузкой файла: {}, e", goodLink, e);
         } finally {
             if (connection != null) {
                 connection.disconnect();

@@ -13,6 +13,7 @@ import ru.nodman.parser.resources.Resources;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedDeque;
 
@@ -20,8 +21,8 @@ public abstract class Parser {
     private static final Logger LOG = LoggerFactory.getLogger(Resources.LOGGER_NAME);
 
 
-    public ConcurrentLinkedDeque<Page> parseUrl(String url) throws IOException {
-        ConcurrentLinkedDeque<Page> pages = new ConcurrentLinkedDeque<>();
+    public Deque<Page> parseUrl(String url) throws IOException, InterruptedException {
+        Deque<Page> pages = new ConcurrentLinkedDeque<>();
 
         Document docPage = Jsoup
                 .connect(url)
@@ -35,7 +36,7 @@ public abstract class Parser {
             threads.add(new Thread(() -> {
                 String address = getAddress(element);
                 String name = getName(element);
-                LocalDateTime date = null;
+                LocalDateTime date;
                 try {
                     date = getDate(address);
                 } catch (IOException e) {
@@ -48,12 +49,8 @@ public abstract class Parser {
         for (Thread thread : threads) {
             thread.start();
         }
-        try {
-            for (Thread thread : threads) {
-                thread.join();
-            }
-        } catch (InterruptedException e) {
-            LOG.error("{}", e);
+        for (Thread thread : threads) {
+            thread.join();
         }
         if (pages.isEmpty()) {
             throw new IOException();

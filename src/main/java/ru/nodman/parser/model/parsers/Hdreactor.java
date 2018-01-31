@@ -84,7 +84,6 @@ public class Hdreactor extends Parser {
         if (qualityBeginIndex > 0 && qualityEndIndex > 0) {
             String newText = text.substring(qualityBeginIndex, qualityEndIndex)
                     .replaceFirst("<b>Качество", "").replaceFirst("</b>", "");
-//                    .replaceFirst(":","");
             StringBuilder sb = new StringBuilder();
             for (int i = 0; i < newText.length(); ++i) {
                 char letter = newText.charAt(i);

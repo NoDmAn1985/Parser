@@ -19,10 +19,19 @@ public class BaseHandler implements Runnable {
     private static final Object LOCK = new Object();
     private static final String CLASS_FOR_NAME_VALUE = "org.sqlite.JDBC";
     private static final String URL = "jdbc:sqlite:parser.sqlite";
-    private static final String CAPTIONS_QUERY = "select * from main";
-    private static final String IMG_EXCEPTIONS_QUERY = "select * from img_exceptions";
+    private static final String QUERY_SELECT_ALL_FROM = "select * from %s";
+    private static final String QUERY_FOR_DATE_SAVE = "UPDATE main SET date='%s' WHERE base='%s'";
+    private static final String TABLE_NAME_MAIN = "main";
+    private static final String TABLE_NAME_IMG_EXCEPTIONS = "img_exceptions";
     private static final String MSG_DB_CLOSE = "доступ к базе закрыт";
     private static final String MSG_DB_OPEN = "доступ к базе открыт";
+    private static final String COLUMN_LABEL_NAME = "name";
+    private static final String COLUMN_LABEL_ADDRESS = "address";
+    private static final String COLUMN_LABEL_DATE = "date";
+    private static final String COLUMN_LABEL_BASE = "base";
+    private static final String COLUMN_LABEL_PARSER_NAME = "parser_name";
+    private static final String COLUMN_LABEL_FIRST_PAGE_INDEX = "first_page_index";
+    private static final String COLUMN_LABEL_PAGE_PATTERN = "page_pattern";
     private final long timeZone;
 
     private Statement statement;
@@ -30,13 +39,10 @@ public class BaseHandler implements Runnable {
     private HashSet<String> imgExceptionsContains = new HashSet<>();
     private HashSet<String> imgExceptionsEquals = new HashSet<>();
     private HashSet<Link> base = new HashSet<>();
-    private Caption caption;
     private String baseName;
     private ExecutorService executor;
-    private LocalDateTime currentDate;
     private DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern(Resources.FILE_DATE_PATTERN);
     private LocalDateTime tempLastDate;
-    private int baseSize;
     private boolean isEnd = false;
 
     BaseHandler(long timeZone) {
@@ -53,19 +59,19 @@ public class BaseHandler implements Runnable {
         }
         try (Connection con = DriverManager.getConnection(URL);
              Statement stmt = con.createStatement();
-             ResultSet resultForCaptions = stmt.executeQuery(CAPTIONS_QUERY)) {
+             ResultSet resultForCaptions = stmt.executeQuery(String.format(QUERY_SELECT_ALL_FROM, TABLE_NAME_MAIN))) {
             LOG.info(MSG_DB_OPEN);
 
             while (resultForCaptions.next()) {
                 Caption caption = new Caption();
                 captions.add(caption);
-                caption.setName(resultForCaptions.getString("name"));
-                caption.setAddress(resultForCaptions.getString("address"));
-                caption.setDate(resultForCaptions.getTimestamp("date").toLocalDateTime());
-                caption.setBaseName(resultForCaptions.getString("base"));
-                caption.setParserName(resultForCaptions.getString("parser_name"));
-                caption.setFirstPage(resultForCaptions.getInt("first_page_index"));
-                caption.setPagePattern(resultForCaptions.getString("page_pattern"));
+                caption.setName(resultForCaptions.getString(COLUMN_LABEL_NAME));
+                caption.setAddress(resultForCaptions.getString(COLUMN_LABEL_ADDRESS));
+                caption.setDate(resultForCaptions.getTimestamp(COLUMN_LABEL_DATE).toLocalDateTime());
+                caption.setBaseName(resultForCaptions.getString(COLUMN_LABEL_BASE));
+                caption.setParserName(resultForCaptions.getString(COLUMN_LABEL_PARSER_NAME));
+                caption.setFirstPage(resultForCaptions.getInt(COLUMN_LABEL_FIRST_PAGE_INDEX));
+                caption.setPagePattern(resultForCaptions.getString(COLUMN_LABEL_PAGE_PATTERN));
             }
             LOG.debug("созданы заголовки - {} шт.", captions.size());
             LOG.info(MSG_DB_CLOSE);
@@ -106,82 +112,73 @@ public class BaseHandler implements Runnable {
         return base.size();
     }
 
-    void loadBase(Caption caption) {
+    void loadBase(Caption caption) throws InterruptedException {
         synchronized (LOCK) {
             while (statement == null) {
-                try {
-                    LOCK.wait();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+                LOCK.wait();
             }
-            this.caption = caption;
             baseName = caption.getBaseName();
         }
 
-//        loadImgExceptions();
+        loadImgExceptions();
 
-        String query = "select * from " + baseName;
+        String query = String.format(QUERY_SELECT_ALL_FROM, baseName);
 
         try (ResultSet rs = statement.executeQuery(query)) {
             while (rs.next()) {
-                String name = rs.getString("name");
-                String address = rs.getString("address");
-                LocalDateTime date = rs.getTimestamp("date").toLocalDateTime();
+                String name = rs.getString(COLUMN_LABEL_NAME);
+                String address = rs.getString(COLUMN_LABEL_ADDRESS);
+                LocalDateTime date = rs.getTimestamp(COLUMN_LABEL_DATE).toLocalDateTime();
                 Link link = new Link(name, address, date);
-//                System.out.println(link.hashCode() + " - " + link);
                 boolean isAdded = base.add(link);
                 if (isAdded && caption.getDate().compareTo(link.getDate()) < 0) {
-                    System.out.println("(" + link.hashCode() + ") " + link);
+                    LOG.debug("({}): {}", link.hashCode(), link);
                 }
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            LOG.error("{}", e);
         }
 
-        System.out.println("загрузка базы закончена, в базе " + base.size() + " ссылок");
+        LOG.debug("загрузка базы закончена, в базе {} ссылок", base.size());
     }
 
     private void loadImgExceptions() {
-        try (ResultSet resultForImages = statement.executeQuery(IMG_EXCEPTIONS_QUERY)) {
+        String query = String.format(QUERY_SELECT_ALL_FROM, TABLE_NAME_IMG_EXCEPTIONS);
+        try (ResultSet resultForImages = statement.executeQuery(query)) {
             while (resultForImages.next()) {
                 if (resultForImages.getBoolean("equals")) {
-                    imgExceptionsEquals.add(resultForImages.getString("address"));
+                    imgExceptionsEquals.add(resultForImages.getString(COLUMN_LABEL_ADDRESS));
                 } else {
-                    imgExceptionsContains.add(resultForImages.getString("address"));
+                    imgExceptionsContains.add(resultForImages.getString(COLUMN_LABEL_ADDRESS));
                 }
             }
-            System.out.println("создан список исключений (contains) - " + imgExceptionsContains.size() + " шт.");
-            System.out.println("создан список исключений (equals) - " + imgExceptionsEquals.size() + " шт.");
-            System.out.println("доступ к базе закрыт");
+            LOG.debug("создан список исключений (contains) - {} шт.", imgExceptionsContains.size());
+            LOG.debug("создан список исключений (equals) - {} шт.", imgExceptionsEquals.size());
         } catch (SQLException sqlEx) {
-            sqlEx.printStackTrace();
+            LOG.error("{}", sqlEx);
         }
     }
 
     boolean checkLinkInBase(Link link) {
         if (base.contains(link)) {
-            System.out.println("есть в базе: " + link);
+            LOG.debug("есть в базе: {}", link);
             return true;
         }
-//        System.out.println("ссылка новая: " + link);
-        System.out.println("ссылка новая: (" + link.hashCode() + ") " + link);
+        LOG.debug("ссылка новая: ({}), {}", link.hashCode(), link);
         return false;
     }
 
     public boolean checkLinkImage(String address) {
         if (imgExceptionsEquals.contains(address)) {
-//            System.out.println("есть в базе (equals): " + address);
             return true;
         } else {
             for (String string : imgExceptionsContains) {
                 if (address.contains(string)) {
-//                    System.out.println("есть в базе (contains): " + address);
                     return true;
                 }
             }
         }
-//        System.out.println("нет в базе изображений - " + address);
+        LOG.debug("нет в базе изображений - {}", address);
         return false;
     }
 
@@ -191,32 +188,29 @@ public class BaseHandler implements Runnable {
             return;
         }
 
-        executor.execute(new Runnable() {
-            @Override
-            public void run() {
-                System.out.println("сохраняется: " + link);
-                base.add(link);
-                saveLink(link);
+        executor.execute(() -> {
+            LOG.debug("сохраняется: {}", link);
+            base.add(link);
+            saveLink(link);
 
-                if (isLast) {
-                    System.out.println("сохраняется время: " + tempLastDate);
-                    saveDate(tempLastDate);
-                    System.out.println("Закрываю пул потоков");
-                    synchronized (LOCK) {
-                        LOCK.notifyAll();
-                    }
-                    executor.shutdown();
+            if (isLast) {
+                LOG.debug("сохраняется время: {}", tempLastDate);
+                saveDate(tempLastDate);
+                LOG.debug("Закрываю пул потоков");
+                synchronized (LOCK) {
+                    LOCK.notifyAll();
                 }
+                executor.shutdown();
             }
         });
     }
 
     private void saveDate(LocalDateTime date) {
-        String query = "UPDATE main SET date='" + dateFormat.format(date) + "' WHERE base='" + baseName + "'";
+        String query = String.format(QUERY_FOR_DATE_SAVE, dateFormat.format(date), baseName);
         try {
             statement.executeUpdate(query);
         } catch (SQLException e) {
-            e.printStackTrace();
+            LOG.error("{}", e);
         }
     }
 
@@ -226,11 +220,7 @@ public class BaseHandler implements Runnable {
         try {
             statement.executeUpdate(query);
         } catch (SQLException e) {
-            e.printStackTrace();
+            LOG.error("{}", e);
         }
-    }
-
-    public LocalDateTime getDate() {
-        return currentDate;
     }
 }
