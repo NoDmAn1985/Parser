@@ -2,6 +2,7 @@ package ru.nodman.parser.model;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import ru.nodman.parser.Main;
 import ru.nodman.parser.common.Caption;
 import ru.nodman.parser.common.ControlListener;
 import ru.nodman.parser.common.Page;
@@ -16,7 +17,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class MainParser {
-    private static final Logger LOG = LoggerFactory.getLogger("logback");
+    private static final Logger LOG = LoggerFactory.getLogger(MainParser.class.getSimpleName());
 
     private static final long SLEEPING_TIME = 5000;
     private TreeMap<String, Page> sortedPages;
@@ -30,6 +31,7 @@ public class MainParser {
     private List<Caption> captions;
     private ExecutorService executor;
     private Parser parser;
+    private int infoPagesCount;
 
     public MainParser() {
         captions = BaseHandler.loadCaptions();
@@ -44,6 +46,7 @@ public class MainParser {
         new Thread(baseHandler).start();
 
         oldPageCountToLoad = Resources.OLD_PAGES_COUNT;
+        infoPagesCount = Resources.INFO_PAGES_COUNT;
 
         baseHandler.loadBase(caption);
         countOfLinksInBase = baseHandler.getBaseSize();
@@ -58,7 +61,7 @@ public class MainParser {
         String pagePattern = caption.getPagePattern();
 
         try {
-            parser = setParser(caption.getParserName());
+            parser = setParser(caption);
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | InvocationTargetException |
                 NoSuchMethodException e) {
             LOG.error("ошибка создания парсера, {}", e);
@@ -99,13 +102,18 @@ public class MainParser {
         Thread.sleep(SLEEPING_TIME);
     }
 
-    private Parser setParser(String parserName) throws ClassNotFoundException, IllegalAccessException, InstantiationException, NoSuchMethodException, InvocationTargetException {
+    private Parser setParser(Caption caption) throws ClassNotFoundException, IllegalAccessException, InstantiationException, NoSuchMethodException, InvocationTargetException {
+        String parserName = caption.getParserName();
+        String captionUrl = caption.getUrl();
+
         String className = "ru.nodman.parser.model.parsers." + parserName;
         Class<?> cls = Class.forName(className);
         if (!Parser.class.isAssignableFrom(cls)) {
             throw new IllegalArgumentException();
         }
-        return (Parser) cls.getConstructor(BaseHandler.class).newInstance(baseHandler);
+        return (Parser) cls
+                .getConstructor(BaseHandler.class, String.class)
+                .newInstance(baseHandler, captionUrl);
     }
 
     private boolean addPages(Deque<Page> tempListOfPage) {
@@ -123,8 +131,9 @@ public class MainParser {
                 page.setParser(parser);
                 executor.execute(page);
             } else {
+                infoPagesCount = (isOldLink ? --infoPagesCount : infoPagesCount);
                 --countOfLinksInBase;
-                if (countOfLinksInBase > 0 && isOldLink) {
+                if (countOfLinksInBase > 0 && isOldLink && infoPagesCount <= 0) {
                     countOfPagesToSkip = countOfLinksInBase / countOfLinksOnPage - 1;
                     countOfLinksInBase = 0;
                     return false;

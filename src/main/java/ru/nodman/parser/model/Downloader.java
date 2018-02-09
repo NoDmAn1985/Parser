@@ -9,7 +9,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 public class Downloader {
-    private static final Logger LOG = LoggerFactory.getLogger("logback");
+    private static final Logger LOG = LoggerFactory.getLogger(Downloader.class.getSimpleName());
 
     private Downloader() {
         // for SonarLint

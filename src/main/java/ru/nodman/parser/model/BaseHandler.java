@@ -14,7 +14,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class BaseHandler implements Runnable {
-    private static final Logger LOG = LoggerFactory.getLogger(Resources.LOGGER_NAME);
+    private static final Logger LOG = LoggerFactory.getLogger(BaseHandler.class.getSimpleName());
 
     private static final Object LOCK = new Object();
     private static final String CLASS_FOR_NAME_VALUE = "org.sqlite.JDBC";
@@ -32,6 +32,7 @@ public class BaseHandler implements Runnable {
     private static final String COLUMN_LABEL_PARSER_NAME = "parser_name";
     private static final String COLUMN_LABEL_FIRST_PAGE_INDEX = "first_page_index";
     private static final String COLUMN_LABEL_PAGE_PATTERN = "page_pattern";
+    private static final String COLUMN_LABEL_URL = "url";
     private final long timeZone;
 
     private Statement statement;
@@ -72,6 +73,7 @@ public class BaseHandler implements Runnable {
                 caption.setParserName(resultForCaptions.getString(COLUMN_LABEL_PARSER_NAME));
                 caption.setFirstPage(resultForCaptions.getInt(COLUMN_LABEL_FIRST_PAGE_INDEX));
                 caption.setPagePattern(resultForCaptions.getString(COLUMN_LABEL_PAGE_PATTERN));
+                caption.setUrl(resultForCaptions.getString(COLUMN_LABEL_URL));
             }
             LOG.debug("созданы заголовки - {} шт.", captions.size());
             LOG.info(MSG_DB_CLOSE);

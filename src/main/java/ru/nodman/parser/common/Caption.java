@@ -16,6 +16,7 @@ public class Caption {
     private String queryForDate;
     private String previousElementText;
     private String parserName;
+    private String url;
 
     public Caption() {
     }
@@ -119,5 +120,13 @@ public class Caption {
 
     public String getParserName() {
         return parserName;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
+    public String getUrl() {
+        return url;
     }
 }

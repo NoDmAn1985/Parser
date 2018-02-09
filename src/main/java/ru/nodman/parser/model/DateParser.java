@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 public class DateParser {
-    private static final Logger LOG = LoggerFactory.getLogger(Resources.LOGGER_NAME);
+    private static final Logger LOG = LoggerFactory.getLogger(DateParser.class.getSimpleName());
 
     private static final String TODAY = "Сегодня";
     private static final String YESTERDAY = "Вчера";

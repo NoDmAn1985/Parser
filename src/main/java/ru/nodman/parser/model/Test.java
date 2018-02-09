@@ -4,26 +4,70 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import ru.nodman.parser.resources.Resources;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 
 public class Test {
+    private static final String LINK_ATTR = "class";
+    private static final String LINK_ATTR_VALUE_FIRST = "gai";
+    private static final String LINK_ATTR_VALUE_SECOND = "tum";
+    private static final String ADDRESS_TAG = "href";
+
     public static void main(String[] args) throws IOException {
-        Document doc = Jsoup.connect("http://rutor.info/torrent/1309/ja-znaju-kto-ubil-menja_i-know-who-killed-me-2007-dvdrip").get();
-        Elements elements = doc.select("td.header");
-        String date = null;
+//        Document docPage = Jsoup
+//                .connect("http://rutor.is/browse/1/0/0/0")
+//                .userAgent("Mozilla")
+//                .ignoreContentType(true)
+//                .get();
+//        Elements elements = docPage.getElementsByAttributeValue(LINK_ATTR, LINK_ATTR_VALUE_FIRST);
+//        Elements elementsSecond = docPage.getElementsByAttributeValue(LINK_ATTR, LINK_ATTR_VALUE_SECOND);
+//
+//        for (Element element : elements) {
+//            System.out.println(element.getElementsByAttributeValueStarting(ADDRESS_TAG, "/torrent/")
+//                .text());
+//
+//        }
+
+
+
+//        Document docPage = Jsoup
+//                .connect("http://rutor.info/browse/1/0/0/0")
+//                .userAgent("Mozilla")
+//                .ignoreContentType(true)
+//                .get();
+//        Elements elementsOnPage = docPage.getElementsByAttributeValue(LINK_ATTR, LINK_ATTR_VALUE_FIRST);
+//        Elements elementsSecond = docPage.getElementsByAttributeValue(LINK_ATTR, LINK_ATTR_VALUE_SECOND);
+//        elementsOnPage.addAll(elementsSecond);
+//
+//        for (Element element : elementsOnPage) {
+//            String address = getAddress(element).replace(Resources.PATTERN_FOR_URL, "http://rutor.info/torrent/");
+//            String name = getName(element);
+//            System.out.println("address = " + address);
+//            System.out.println("name = " + name);
+//        }
+//
+//
+
+        Document doc = Jsoup.connect("http://rutor.is/torrent/612353/conarium-v-1.0.0.6-2017-pc-repack-ot-other-s").get();
+        Elements elements = doc.select("#details").first().getElementsByAttributeValueStarting("src", "http://").select("img");
         for (Element element : elements) {
-            Elements tempElements = element.getElementsContainingText("Залил");
-            if (!tempElements.isEmpty()) {
-                date = tempElements.get(0).nextElementSibling().children().last().text();
-                System.out.println(date);
-                return;
-            }
+            System.out.println(element);
         }
-        System.out.println("не нашёл");
-//        String newDate = date.substring(0, date.indexOf(" ("));
-//        DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("d-M-yyyy H:mm:ss");
-//        LocalDateTime resultDate = LocalDateTime.parse(newDate, dateFormat);
-//        System.out.println(resultDate);
     }
+
+    private static String getAddress(Element element) {
+        return "{URL}" + element
+                .getElementsByAttributeValueStarting(ADDRESS_TAG, "/torrent/")
+                .get(0).attr(ADDRESS_TAG);
+
+    }
+
+    private static String getName(Element element) {
+        return element
+                .getElementsByAttributeValueStarting(ADDRESS_TAG, "/torrent/")
+                .text();
+    }
+
 }

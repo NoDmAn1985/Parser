@@ -27,6 +27,7 @@ public class Controller implements ControlListener {
 
     @Override
     public Page parse(Caption caption) {
+        viewListener.updateTitle(Resources.TITLE_PARSING);
         index = 0;
         this.pages = new ArrayList<>();
         mainParser.setControlListener(this);
@@ -38,6 +39,7 @@ public class Controller implements ControlListener {
 
         Page page = pages.get(index);
         mainParser.saveLink(page, pages.size() - 1 == 0);
+        viewListener.updateTitle(Resources.TITLE_DONE);
         return page;
     }
 
@@ -73,5 +75,6 @@ public class Controller implements ControlListener {
     public void setViewListener(ViewListener viewListener) {
         this.viewListener = viewListener;
     }
+
 
 }

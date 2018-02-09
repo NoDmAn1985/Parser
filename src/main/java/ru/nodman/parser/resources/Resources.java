@@ -29,16 +29,21 @@ public class Resources {
     public static final int TITLE_LENGTH = 125;
     public static final int INFO_LENGTH = 19;
 
-    public static final int OLD_PAGES_COUNT = 10;
+    public static final int OLD_PAGES_COUNT = 50;
+    public static final int INFO_PAGES_COUNT = 5;
 
     private static final int TEXT_SIZE = (int) (FRAME_WIDTH * 0.016);
     private static final int TITLE_SIZE = (int) (TEXT_SIZE * 1.55);
 
-    public static final Font FONT_TEXT = new Font("Verdana", Font.PLAIN, TEXT_SIZE);
-    public static final Font FONT_TITLE = new Font("Verdana", Font.BOLD, TITLE_SIZE);
+    public static final Font FONT_TEXT = new Font("Segoe Print", Font.PLAIN, TEXT_SIZE);
+    public static final Font FONT_TITLE = new Font("Segoe Print", Font.BOLD, TITLE_SIZE);
     public static final Border IMAGE_BORDER = BorderFactory.createRaisedBevelBorder();
 
     public static final String TITLE = "MyParser";
+    public static final String TITLE_PARSING = "[PARSING]" + TITLE;
+    public static final String TITLE_DONE = "[DONE]" + TITLE;
+
+    public static final String PATTERN_FOR_URL = "{URL}";
 
     public static final String DOWNLOAD_PATH = File.separator + "parser" + File.separator + "download" + File.separator;
     private static final String ARROW_LEFT_PATH = "arrowLeft.png";

@@ -29,8 +29,24 @@ public class Hdreactor extends Parser {
     private static final String SEEDS_COUNT = "span.li_distribute_m";
     private BaseHandler baseHandler;
 
-    public Hdreactor(BaseHandler baseHandler) {
+    public Hdreactor(BaseHandler baseHandler, String url) {
         this.baseHandler = baseHandler;
+        this.url = url;
+    }
+
+    @Override
+    protected Elements getLinks(Document docPage) {
+        return docPage.getElementsByAttributeValue(LINK_ATTR, LINK_ATTR_VALUE);
+    }
+
+    @Override
+    protected String getName(Element element) {
+        return element.child(0).tagName(NAME_TAG).text();
+    }
+
+    @Override
+    protected String getAddress(Element element) {
+        return element.child(0).attr(ADDRESS_TAG);
     }
 
     @Override
@@ -141,20 +157,5 @@ public class Hdreactor extends Parser {
         Document doc = Jsoup.connect(link).get();
         String dateString = doc.select(DATE_QUERY).get(0).text();
         return DateParser.parse(dateString, DATE_PATTERN);
-    }
-
-    @Override
-    protected String getName(Element element) {
-        return element.child(0).tagName(NAME_TAG).text();
-    }
-
-    @Override
-    protected String getAddress(Element element) {
-        return element.child(0).attr(ADDRESS_TAG);
-    }
-
-    @Override
-    protected Elements getLinks(Document docPage) {
-        return docPage.getElementsByAttributeValue(LINK_ATTR, LINK_ATTR_VALUE);
     }
 }

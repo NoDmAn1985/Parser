@@ -18,31 +18,37 @@ import java.util.List;
 import java.util.concurrent.ConcurrentLinkedDeque;
 
 public abstract class Parser {
-    private static final Logger LOG = LoggerFactory.getLogger(Resources.LOGGER_NAME);
+    String url;
+
+    private static final Logger LOG = LoggerFactory.getLogger(Parser.class.getSimpleName());
 
 
-    public Deque<Page> parseUrl(String url) throws IOException, InterruptedException {
+    public Deque<Page> parseUrl(String urlAddress) throws IOException, InterruptedException {
         Deque<Page> pages = new ConcurrentLinkedDeque<>();
 
         Document docPage = Jsoup
-                .connect(url)
+                .connect(urlAddress)
                 .userAgent("Mozilla")
                 .ignoreContentType(true)
                 .get();
         Elements elementsOnPage = getLinks(docPage);
+        LOG.debug("elementsOnPage.size() = {}", elementsOnPage.size());
 
         List<Thread> threads = new ArrayList<>();
         for (Element element : elementsOnPage) {
             threads.add(new Thread(() -> {
-                String address = getAddress(element);
+                String address = getAddress(element).replace(Resources.PATTERN_FOR_URL, url);
                 String name = getName(element);
+                LOG.debug("address = {}, name = {}", address, name);
                 LocalDateTime date;
                 try {
                     date = getDate(address);
                 } catch (IOException e) {
+                    LOG.error("{}", e);
                     return;
                 }
                 Link link = new Link(name, address, date);
+                LOG.debug("link = {}", link);
                 pages.add(new Page(link));
             }));
         }

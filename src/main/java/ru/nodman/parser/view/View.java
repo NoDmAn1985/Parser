@@ -404,6 +404,11 @@ public class View implements ViewListener {
                 "</p></html>");
     }
 
+    @Override
+    public void updateTitle(String text) {
+        frame.setTitle(text);
+    }
+
     private void setTitle(String text) {
         title.setText("<html><p align = 'center' ><span bgcolor = 'blue'>" +
                 text.substring(0, Math.min(text.length(), Resources.TITLE_LENGTH)) +
