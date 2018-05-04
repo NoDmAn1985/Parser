@@ -154,9 +154,8 @@ public class Hdreactor extends Parser {
 
     @Override
     protected LocalDateTime getDate(String link) throws IOException {
-        Document doc = Jsoup.connect(link).get();
+        Document doc = Parser.getDocument(link);
         String dateString = doc.select(DATE_QUERY).get(0).text();
-        System.out.println(dateString);
         return DateParser.parse(dateString, DATE_PATTERN);
     }
 }

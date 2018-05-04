@@ -37,15 +37,7 @@ public abstract class Parser {
 //                .timeout(12000)
 //                .get();
 
-        Connection.Response response= Jsoup.connect(urlAddress)
-                .ignoreContentType(true)
-                .userAgent("Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:25.0) Gecko/20100101 Firefox/25.0")
-                .referrer("http://www.google.com")
-                .timeout(12000)
-                .followRedirects(true)
-                .execute();
-        Document docPage = response.charset("windows-1251").parse();
-        docPage.charset(Charset.forName("UTF-8"));
+        Document docPage = getDocument(urlAddress);
 
         Elements elementsOnPage = getLinks(docPage);
         LOG.debug("elementsOnPage.size() = {}", elementsOnPage.size());
@@ -80,6 +72,19 @@ public abstract class Parser {
         return pages;
     }
 
+    public static Document getDocument(String urlAddress) throws IOException {
+        Connection.Response response= Jsoup.connect(urlAddress)
+                .ignoreContentType(true)
+                .userAgent("Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:25.0) Gecko/20100101 Firefox/25.0")
+                .referrer("http://www.google.com")
+                .timeout(12000)
+                .followRedirects(true)
+                .execute();
+        Document docPage = response.charset("windows-1251").parse();
+        docPage.charset(Charset.forName("UTF-8"));
+        return docPage;
+    }
+
     protected abstract LocalDateTime getDate(String address) throws IOException;
 
     protected abstract String getName(Element element);
@@ -91,7 +96,7 @@ public abstract class Parser {
     public void parsePage(Page page) {
         Document doc;
         try {
-            doc = Jsoup.connect(page.getAddress()).get();
+            doc = getDocument(page.getAddress());
         } catch (IOException e) {
             LOG.error("{}", e);
             return;
