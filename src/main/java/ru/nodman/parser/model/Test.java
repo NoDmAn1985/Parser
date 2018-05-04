@@ -50,8 +50,14 @@ public class Test {
 //
 //
 
-        Document doc = Jsoup.connect("http://rutor.is/torrent/612353/conarium-v-1.0.0.6-2017-pc-repack-ot-other-s").get();
-        Elements elements = doc.select("#details").first().getElementsByAttributeValueStarting("src", "http://").select("img");
+        Document doc = Jsoup.connect("http://rutor.is/torrent/609733/win-10-tweaker-5.4-x86/x64-2018-pc-portable-by-xpuct").get();
+        Elements elements = doc.getElementById("details").getElementsByTag("img");
+        Elements tempElements = doc.select(".hidebody");
+        System.out.println(tempElements.size());
+        for (Element tempElement : tempElements) {
+            System.out.println(tempElement.children());
+        }
+
         for (Element element : elements) {
             System.out.println(element);
         }

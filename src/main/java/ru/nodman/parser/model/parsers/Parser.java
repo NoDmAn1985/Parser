@@ -1,5 +1,6 @@
 package ru.nodman.parser.model.parsers;
 
+import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -11,6 +12,8 @@ import ru.nodman.parser.common.Page;
 import ru.nodman.parser.resources.Resources;
 
 import java.io.IOException;
+import java.net.URL;
+import java.nio.charset.Charset;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Deque;
@@ -26,11 +29,24 @@ public abstract class Parser {
     public Deque<Page> parseUrl(String urlAddress) throws IOException, InterruptedException {
         Deque<Page> pages = new ConcurrentLinkedDeque<>();
 
-        Document docPage = Jsoup
-                .connect(urlAddress)
-                .userAgent("Mozilla")
+//        Document docPage = Jsoup
+//                .connect(urlAddress)
+//                .ignoreContentType(true)
+//                .userAgent("Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:25.0) Gecko/20100101 Firefox/25.0")
+//                .referrer("http://www.google.com")
+//                .timeout(12000)
+//                .get();
+
+        Connection.Response response= Jsoup.connect(urlAddress)
                 .ignoreContentType(true)
-                .get();
+                .userAgent("Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:25.0) Gecko/20100101 Firefox/25.0")
+                .referrer("http://www.google.com")
+                .timeout(12000)
+                .followRedirects(true)
+                .execute();
+        Document docPage = response.charset("windows-1251").parse();
+        docPage.charset(Charset.forName("UTF-8"));
+
         Elements elementsOnPage = getLinks(docPage);
         LOG.debug("elementsOnPage.size() = {}", elementsOnPage.size());
 
