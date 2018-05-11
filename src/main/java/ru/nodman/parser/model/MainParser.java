@@ -32,6 +32,8 @@ public class MainParser {
     private ExecutorService executor;
     private Parser parser;
     private int infoPagesCount;
+    private boolean isEnd = false;
+
 
     public MainParser() {
         captions = BaseHandler.loadCaptions();
@@ -67,7 +69,7 @@ public class MainParser {
             LOG.error("ошибка создания парсера, {}", e);
         }
 
-        boolean isEnd = false;
+        isEnd = false;
         while (!isEnd) {
             Deque<Page> tempListOfPage;
             String address = url + String.format(pagePattern, index);
@@ -76,7 +78,9 @@ public class MainParser {
                 tempListOfPage = parser.parseUrl(address);
             } catch (IOException e) {
                 LOG.error("не смог распарсить address = {}, {}", address, e);
-                return;
+                isEnd = false;
+                break;
+//                return;
             }
 
             if (countOfLinksOnPage == 0) {
@@ -144,7 +148,7 @@ public class MainParser {
     }
 
     public void saveLink(Page page, boolean last) {
-        baseHandler.appendBase(page.getLink(), last);
+        baseHandler.appendBase(page.getLink(), isEnd && last);
     }
 
     public List<Caption> getCaptions() {
@@ -152,7 +156,7 @@ public class MainParser {
     }
 
     private boolean isNewLink(LocalDateTime date) {
-        return lastDate.compareTo(date) < 0;
+        return date == null || lastDate.compareTo(date) < 0;
     }
 }
 

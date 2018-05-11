@@ -27,7 +27,9 @@ public class Page implements Runnable {
         }
         stringParameters.put(Parameters.TITLE, link.getName());
         stringParameters.put(Parameters.URL, link.getAddress());
-        stringParameters.put(Parameters.DATE, myDateFormat.format(link.getDate()));
+        if (link.getDate() != null) {
+            stringParameters.put(Parameters.DATE, myDateFormat.format(link.getDate()));
+        }
         images[0] = Resources.ERROR_404_BIG;
         for (int i = 1; i < images.length; ++i) {
             images[i] = Resources.ERROR_404;

@@ -37,7 +37,7 @@ public class Downloader {
                 LOG.error("не удалось создать файл {}, {}", fileName, e);
             }
             file.deleteOnExit();
-            LOG.debug("isDirectoryCreate && isFileCreated = {}", isDirectoryCreate && isFileCreated);
+//            LOG.debug("isDirectoryCreate && isFileCreated = {}", isDirectoryCreate && isFileCreated);
         }
 
         HttpURLConnection connection = null;

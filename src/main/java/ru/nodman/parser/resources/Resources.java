@@ -40,8 +40,7 @@ public class Resources {
     public static final Border IMAGE_BORDER = BorderFactory.createRaisedBevelBorder();
 
     public static final String TITLE = "MyParser";
-    public static final String TITLE_PARSING = "[PARSING]" + TITLE;
-    public static final String TITLE_DONE = "[DONE]" + TITLE;
+    public static final String TITLE_PARSING = "[PARSING] " + TITLE;
 
     public static final String PATTERN_FOR_URL = "{URL}";
 

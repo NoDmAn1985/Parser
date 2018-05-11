@@ -37,9 +37,12 @@ public class Controller implements ControlListener {
             LOG.error("{}", e);
         }
 
+        if (pages.isEmpty()) {
+            return null;
+        }
         Page page = pages.get(index);
         mainParser.saveLink(page, pages.size() - 1 == 0);
-        viewListener.updateTitle(Resources.TITLE_DONE);
+        viewListener.updateTitle(Resources.TITLE);
         return page;
     }
 

@@ -443,7 +443,9 @@ public class View implements ViewListener {
         img.get(0).setHorizontalAlignment(JLabel.CENTER);
         img.get(0).setMinimumSize(new Dimension(Resources.IMAGE_BIG_WIDTH, Resources.IMAGE_BIG_HEIGHT));
         page = controlListener.parse((Caption) url.getSelectedItem());
-        showPage();
+        if (page != null) {
+            showPage();
+        }
         parse.setEnabled(true);
         setButtonsOn(true);
         isLoadEnds = true;

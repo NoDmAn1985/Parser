@@ -47,7 +47,7 @@ public class Link {
     public int hashCode() {
         int result = name.hashCode();
         result = 31 * result + address.hashCode();
-        result = 31 * result + date.hashCode();
+        result = 31 * result + (date == null ? 99999 : date.hashCode());
         return result;
     }
 

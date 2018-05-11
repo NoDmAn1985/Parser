@@ -17,6 +17,7 @@ public class Caption {
     private String previousElementText;
     private String parserName;
     private String url;
+    private String linksAddress;
 
     public Caption() {
     }
@@ -129,4 +130,13 @@ public class Caption {
     public String getUrl() {
         return url;
     }
+
+    public void setLinksAddress(String linksAddress) {
+        this.linksAddress = linksAddress;
+    }
+
+    public String getLinksAddress() {
+        return linksAddress;
+    }
+
 }

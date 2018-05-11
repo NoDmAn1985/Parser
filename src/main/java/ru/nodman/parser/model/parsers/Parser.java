@@ -12,13 +12,18 @@ import ru.nodman.parser.common.Page;
 import ru.nodman.parser.resources.Resources;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.net.SocketTimeoutException;
 import java.net.URL;
+import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public abstract class Parser {
     String url;
@@ -28,44 +33,32 @@ public abstract class Parser {
 
     public Deque<Page> parseUrl(String urlAddress) throws IOException, InterruptedException {
         Deque<Page> pages = new ConcurrentLinkedDeque<>();
-
-//        Document docPage = Jsoup
-//                .connect(urlAddress)
-//                .ignoreContentType(true)
-//                .userAgent("Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:25.0) Gecko/20100101 Firefox/25.0")
-//                .referrer("http://www.google.com")
-//                .timeout(12000)
-//                .get();
-
-        Document docPage = getDocument(urlAddress);
+        Document docPage;
+        try {
+            docPage = getDocument(urlAddress, 30000);
+        } catch (org.jsoup.UncheckedIOException | IOException ex) {
+            LOG.error("не удалось распарсить страницу", ex);
+            throw new IOException(ex);
+        }
 
         Elements elementsOnPage = getLinks(docPage);
+
         LOG.debug("elementsOnPage.size() = {}", elementsOnPage.size());
 
-        List<Thread> threads = new ArrayList<>();
         for (Element element : elementsOnPage) {
-            threads.add(new Thread(() -> {
-                String address = getAddress(element).replace(Resources.PATTERN_FOR_URL, url);
-                String name = getName(element);
-                LOG.debug("address = {}, name = {}", address, name);
-                LocalDateTime date;
-                try {
-                    date = getDate(address);
-                } catch (IOException e) {
-                    LOG.error("{}", e);
-                    return;
-                }
-                Link link = new Link(name, address, date);
-                LOG.debug("link = {}", link);
-                pages.add(new Page(link));
-            }));
+            String address = getAddress(element).replace(Resources.PATTERN_FOR_URL, url);
+            String name = getName(element);
+            LocalDateTime date = null;
+            try {
+                date = getDate(address);
+            } catch (NullPointerException | org.jsoup.UncheckedIOException | IOException e) {
+                LOG.error("проблема с распознаванием даты, address = {}, {}", address, e);
+            }
+            Link link = new Link(name, address, date);
+            LOG.debug("link = {}", link);
+            pages.add(new Page(link));
         }
-        for (Thread thread : threads) {
-            thread.start();
-        }
-        for (Thread thread : threads) {
-            thread.join();
-        }
+
         if (pages.isEmpty()) {
             throw new IOException();
         }
@@ -73,12 +66,15 @@ public abstract class Parser {
     }
 
     public static Document getDocument(String urlAddress) throws IOException {
-        Connection.Response response= Jsoup.connect(urlAddress)
+        return getDocument(urlAddress, 2000);
+    }
+
+    private static Document getDocument(String urlAddress, int timeOut) throws IOException {
+        Connection.Response response = Jsoup.connect(urlAddress)
                 .ignoreContentType(true)
                 .userAgent("Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:25.0) Gecko/20100101 Firefox/25.0")
-                .referrer("http://www.google.com")
-                .timeout(12000)
-                .followRedirects(true)
+                .timeout(timeOut)
+                .followRedirects(false)
                 .execute();
         Document docPage = response.charset("windows-1251").parse();
         docPage.charset(Charset.forName("UTF-8"));
@@ -97,8 +93,8 @@ public abstract class Parser {
         Document doc;
         try {
             doc = getDocument(page.getAddress());
-        } catch (IOException e) {
-            LOG.error("{}", e);
+        } catch (org.jsoup.UncheckedIOException | IOException e) {
+            LOG.error("была ошибка, не смог распарсить page = {}, {}", page, e);
             return;
         }
 
