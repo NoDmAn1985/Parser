@@ -22,11 +22,8 @@ public class BaseHandler implements Runnable {
     private static final String QUERY_SELECT_ALL_FROM_MAIN = "SELECT * " +
                     "FROM (main INNER JOIN urls ON (main.url=urls.url))";
 
-
-//            "select * from main INNER JOIN urls on main.url = urls.url";
     private static final String QUERY_SELECT_ALL_FROM = "select * from %s";
     private static final String QUERY_FOR_DATE_SAVE = "UPDATE main SET date='%s' WHERE base='%s'";
-    private static final String TABLE_NAME_MAIN = "main";
     private static final String TABLE_NAME_IMG_EXCEPTIONS = "img_exceptions";
     private static final String MSG_DB_CLOSE = "доступ к базе закрыт";
     private static final String MSG_DB_OPEN = "доступ к базе открыт";
@@ -80,7 +77,13 @@ public class BaseHandler implements Runnable {
                 caption.setAddress(resultForCaptions.getString(COLUMN_LABEL_ADDRESS_START)
                         + resultForCaptions.getString(COLUMN_LABEL_ADDRESS_END));
                 caption.setLinksAddress(resultForCaptions.getString(COLUMN_LABEL_LINKS_ADDRESS));
-                caption.setDate(resultForCaptions.getTimestamp(COLUMN_LABEL_DATE).toLocalDateTime());
+                LocalDateTime time = null;
+                try {
+                    time = resultForCaptions.getTimestamp(COLUMN_LABEL_DATE).toLocalDateTime();
+                } catch (NullPointerException e) {
+                    time = LocalDateTime.now().minusDays(10);
+                                    }
+                caption.setDate(time);
                 caption.setBaseName(resultForCaptions.getString(COLUMN_LABEL_BASE));
                 caption.setParserName(resultForCaptions.getString(COLUMN_LABEL_PARSER_NAME));
                 caption.setFirstPage(resultForCaptions.getInt(COLUMN_LABEL_FIRST_PAGE_INDEX));

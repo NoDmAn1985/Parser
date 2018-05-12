@@ -51,8 +51,11 @@ public abstract class Parser {
             LocalDateTime date = null;
             try {
                 date = getDate(address);
+            } catch (SocketTimeoutException socketEx) {
+                LOG.error("проблема с распознаванием даты (SocketTimeoutException), address = {}\", address");
             } catch (NullPointerException | org.jsoup.UncheckedIOException | IOException e) {
-                LOG.error("проблема с распознаванием даты, address = {}, {}", address, e);
+                LOG.error("проблема с распознаванием даты, address = {}", address, e);
+                continue;
             }
             Link link = new Link(name, address, date);
             LOG.debug("link = {}", link);
@@ -65,7 +68,7 @@ public abstract class Parser {
         return pages;
     }
 
-    public static Document getDocument(String urlAddress) throws IOException {
+    static Document getDocument(String urlAddress) throws IOException {
         return getDocument(urlAddress, 2000);
     }
 

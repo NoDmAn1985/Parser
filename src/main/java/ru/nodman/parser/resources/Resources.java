@@ -21,6 +21,7 @@ public class Resources {
 
     public static final int FRAME_HEIGHT = (int) (Toolkit.getDefaultToolkit().getScreenSize().height * 0.9);
     public static final int FRAME_WIDTH = (int) (FRAME_HEIGHT * 0.95);
+    public static final int ICON_SIZE = 120;
     public static final int IMAGE_SMALL_WIDTH = (int) (FRAME_WIDTH / 4.0);
     public static final int IMAGE_SMALL_HEIGHT = (int) (IMAGE_SMALL_WIDTH / 16.0 * 9);
     public static final int IMAGE_BIG_WIDTH = IMAGE_SMALL_WIDTH * 2;
@@ -29,8 +30,7 @@ public class Resources {
     public static final int TITLE_LENGTH = 125;
     public static final int INFO_LENGTH = 19;
 
-    public static final int OLD_PAGES_COUNT = 50;
-    public static final int INFO_PAGES_COUNT = 5;
+    public static final int OLD_PAGES_COUNT = 10;
 
     private static final int TEXT_SIZE = (int) (FRAME_WIDTH * 0.016);
     private static final int TITLE_SIZE = (int) (TEXT_SIZE * 1.55);
@@ -45,12 +45,16 @@ public class Resources {
     public static final String PATTERN_FOR_URL = "{URL}";
 
     public static final String DOWNLOAD_PATH = File.separator + "parser" + File.separator + "download" + File.separator;
+    private static final String ICO_GREEN = "ico_green.png";
+    private static final String ICO_RED = "ico_red.png";
     private static final String ARROW_LEFT_PATH = "arrowLeft.png";
     private static final String ARROW_RIGHT_PATH = "arrowRight.png";
     private static final String ERROR_404_PATH = "404.png";
     private static final String ERROR_404_BIG_PATH = "404big.png";
     private static final String LOADING_PATH = "load.gif";
 
+    public static final ImageIcon ICON_GREEN = imageToIcon(ICO_GREEN, ICON_SIZE, ICON_SIZE);
+    public static final ImageIcon ICON_RED = imageToIcon(ICO_RED, ICON_SIZE, ICON_SIZE);
     public static final ImageIcon ARROW_LEFT = imageToIcon(ARROW_LEFT_PATH, IMAGE_SMALL_WIDTH, IMAGE_SMALL_HEIGHT);
     public static final ImageIcon ARROW_RIGHT = imageToIcon(ARROW_RIGHT_PATH, IMAGE_SMALL_WIDTH, IMAGE_SMALL_HEIGHT);
     public static final ImageIcon ERROR_404 = imageToIcon(ERROR_404_PATH, IMAGE_SMALL_WIDTH, IMAGE_SMALL_HEIGHT);

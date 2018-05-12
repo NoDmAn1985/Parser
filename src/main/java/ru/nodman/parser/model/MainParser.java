@@ -31,7 +31,6 @@ public class MainParser {
     private List<Caption> captions;
     private ExecutorService executor;
     private Parser parser;
-    private int infoPagesCount;
     private boolean isEnd = false;
 
 
@@ -48,7 +47,6 @@ public class MainParser {
         new Thread(baseHandler).start();
 
         oldPageCountToLoad = Resources.OLD_PAGES_COUNT;
-        infoPagesCount = Resources.INFO_PAGES_COUNT;
 
         baseHandler.loadBase(caption);
         countOfLinksInBase = baseHandler.getBaseSize();
@@ -56,6 +54,8 @@ public class MainParser {
         executor = Executors.newFixedThreadPool(Resources.THREAD_COUNT);
 
         sortedPages = new TreeMap<>();
+        controlListener.updateSize(sortedPages.size());
+
         String url = caption.getAddress();
         lastDate = caption.getDate();
         LOG.debug("последняя дата - {}", lastDate);
@@ -80,7 +80,6 @@ public class MainParser {
                 LOG.error("не смог распарсить address = {}, {}", address, e);
                 isEnd = false;
                 break;
-//                return;
             }
 
             if (countOfLinksOnPage == 0) {
@@ -135,9 +134,8 @@ public class MainParser {
                 page.setParser(parser);
                 executor.execute(page);
             } else {
-                infoPagesCount = (isOldLink ? --infoPagesCount : infoPagesCount);
                 --countOfLinksInBase;
-                if (countOfLinksInBase > 0 && isOldLink && infoPagesCount <= 0) {
+                if (countOfLinksInBase > 0 && isOldLink) {
                     countOfPagesToSkip = countOfLinksInBase / countOfLinksOnPage - 1;
                     countOfLinksInBase = 0;
                     return false;

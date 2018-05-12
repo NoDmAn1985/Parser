@@ -107,6 +107,9 @@ public class Hdreactor extends Parser {
                     sb.append(letter);
                 }
             }
+            if (sb.length() < 1) {
+                sb.append("-");
+            }
             page.setParameter(Parameters.QUALITY, sb.toString());
         }
     }

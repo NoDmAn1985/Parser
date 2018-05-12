@@ -2,7 +2,6 @@ package ru.nodman.parser.view;
 
 import ru.nodman.parser.common.*;
 import ru.nodman.parser.resources.Resources;
-import ru.nodman.parser.common.*;
 import uriSchemeHandler.CouldNotOpenUriSchemeHandler;
 import uriSchemeHandler.URISchemeHandler;
 
@@ -93,7 +92,7 @@ public class View implements ViewListener {
         frame.setLocationRelativeTo(null);
         frame.setResizable(false);
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        //frame.setIconImage(this.iconManager.getIcon());
+        frame.setIconImage(Resources.ICON_GREEN.getImage());
         frame.setVisible(true);
     }
 
@@ -173,7 +172,6 @@ public class View implements ViewListener {
         title.setHorizontalAlignment(JLabel.CENTER);
         title.setVerticalAlignment(JLabel.TOP);
         title.setForeground(Color.WHITE);
-        setTitle("Заголовок");
         titleConstants.gridy = 1;
         titleConstants.weighty = 1;
         img.get(0).add(title, titleConstants);
@@ -212,7 +210,6 @@ public class View implements ViewListener {
         creationDate = new JLabel();
         creationDate.setFont(Resources.FONT_TEXT);
         creationDate.setHorizontalAlignment(JLabel.CENTER);
-        creationDate.setText("Дата");
         creationDate.setBorder(Resources.IMAGE_BORDER);
         infoPanel.add(creationDate, infoConstants);
 
@@ -221,7 +218,6 @@ public class View implements ViewListener {
         user.setFont(Resources.FONT_TEXT);
         user.setHorizontalAlignment(JLabel.CENTER);
         user.setForeground(Color.BLUE);
-        user.setText("Создатель");
         user.setBorder(Resources.IMAGE_BORDER);
         infoPanel.add(user, infoConstants);
 
@@ -229,7 +225,6 @@ public class View implements ViewListener {
         quality = new JLabel();
         quality.setFont(Resources.FONT_TITLE);
         quality.setHorizontalAlignment(JLabel.CENTER);
-        quality.setText("Качество");
         quality.setBorder(Resources.IMAGE_BORDER);
         infoPanel.add(quality, infoConstants);
 
@@ -238,19 +233,8 @@ public class View implements ViewListener {
         fileSize.setFont(Resources.FONT_TITLE);
         fileSize.setHorizontalAlignment(JLabel.CENTER);
         fileSize.setForeground(Color.RED);
-        fileSize.setText("Размер");
         fileSize.setBorder(Resources.IMAGE_BORDER);
         infoPanel.add(fileSize, infoConstants);
-
-        addImg(img.get(1), 2, 3, 1, 1, true);
-        addImg(img.get(2), 3, 0, 1, 1, true);
-        addImg(img.get(3), 3, 3, 1, 1, true);
-        addImg(img.get(4), 4, 0, 1, 1, true);
-        addImg(img.get(5), 4, 3, 1, 1, true);
-        addImg(img.get(6), 5, 0, 1, 1, true);
-        addImg(img.get(7), 5, 3, 1, 1, true);
-        addImg(img.get(8), 6, 0, 1, 1, true);
-        addImg(img.get(9), 6, 3, 1, 1, true);
 
         constants.gridy = 6;
         constants.gridx = 1;
@@ -319,14 +303,12 @@ public class View implements ViewListener {
         seeds = new JLabel();
         seeds.setFont(Resources.FONT_TEXT);
         seeds.setHorizontalAlignment(JLabel.CENTER);
-        seeds.setText("Раздают: ?");
         downPanel.add(seeds, downConstants);
 
         downConstants.gridx = 1;
         peers = new JLabel();
         peers.setFont(Resources.FONT_TEXT);
         peers.setHorizontalAlignment(JLabel.CENTER);
-        peers.setText("Качают: ?");
         downPanel.add(peers, downConstants);
 
         downConstants.gridx = 2;
@@ -334,7 +316,6 @@ public class View implements ViewListener {
         downs = new JLabel();
         downs.setFont(Resources.FONT_TEXT);
         downs.setHorizontalAlignment(JLabel.CENTER);
-        downs.setText("Скачали: ?");
         downPanel.add(downs, downConstants);
 
         constants.gridy = 7;
@@ -346,11 +327,12 @@ public class View implements ViewListener {
         aboutText.setEditable(false);
         aboutText.setLineWrap(true);
         aboutText.setMinimumSize(new Dimension(Resources.FRAME_WIDTH, Resources.IMAGE_SMALL_HEIGHT));
-        aboutText.setText("О фильме:");
         frame.add(aboutText, constants);
 
         buttons = new ArrayList<>(Arrays.asList(left, right, link, btnTorrentMagnetLink));
         setButtonsOn(false);
+
+        clearTextAndImages();
     }
 
     public void setControlListener(ControlListener controlListener) {
@@ -435,6 +417,8 @@ public class View implements ViewListener {
 
 
     private void parse() {
+        frame.setIconImage(Resources.ICON_RED.getImage());
+        clearTextAndImages();
         Resources.LOADING_ICON.setImageObserver(img.get(0));
         parse.setEnabled(false);
         setButtonsOn(false);
@@ -442,6 +426,7 @@ public class View implements ViewListener {
         img.get(0).setIcon(Resources.LOADING_ICON);
         img.get(0).setHorizontalAlignment(JLabel.CENTER);
         img.get(0).setMinimumSize(new Dimension(Resources.IMAGE_BIG_WIDTH, Resources.IMAGE_BIG_HEIGHT));
+        page = null;
         page = controlListener.parse((Caption) url.getSelectedItem());
         if (page != null) {
             showPage();
@@ -449,6 +434,28 @@ public class View implements ViewListener {
         parse.setEnabled(true);
         setButtonsOn(true);
         isLoadEnds = true;
+        frame.setIconImage(Resources.ICON_GREEN.getImage());
     }
 
+    private void clearTextAndImages() {
+        setTitle("Заголовок");
+        creationDate.setText("Дата");
+        user.setText("Создатель");
+        quality.setText("Качество");
+        fileSize.setText("Размер");
+        seeds.setText("Раздают: ?");
+        peers.setText("Качают: ?");
+        downs.setText("Скачали: ?");
+        aboutText.setText("О фильме:");
+
+        addImg(img.get(1), 2, 3, 1, 1, true);
+        addImg(img.get(2), 3, 0, 1, 1, true);
+        addImg(img.get(3), 3, 3, 1, 1, true);
+        addImg(img.get(4), 4, 0, 1, 1, true);
+        addImg(img.get(5), 4, 3, 1, 1, true);
+        addImg(img.get(6), 5, 0, 1, 1, true);
+        addImg(img.get(7), 5, 3, 1, 1, true);
+        addImg(img.get(8), 6, 0, 1, 1, true);
+        addImg(img.get(9), 6, 3, 1, 1, true);
+    }
 }
