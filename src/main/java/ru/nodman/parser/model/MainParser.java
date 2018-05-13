@@ -24,6 +24,7 @@ public class MainParser {
     private ControlListener controlListener;
     private BaseHandler baseHandler;
     private int oldPageCountToLoad;
+    private int infoPagesCount;
     private LocalDateTime lastDate;
     private int countOfLinksOnPage;
     private int countOfLinksInBase;
@@ -47,6 +48,7 @@ public class MainParser {
         new Thread(baseHandler).start();
 
         oldPageCountToLoad = Resources.OLD_PAGES_COUNT;
+        infoPagesCount = Resources.INFO_PAGES_COUNT;
 
         baseHandler.loadBase(caption);
         countOfLinksInBase = baseHandler.getBaseSize();
@@ -134,8 +136,9 @@ public class MainParser {
                 page.setParser(parser);
                 executor.execute(page);
             } else {
+                infoPagesCount = (isOldLink ? --infoPagesCount : infoPagesCount);
                 --countOfLinksInBase;
-                if (countOfLinksInBase > 0 && isOldLink) {
+                if (countOfLinksInBase > 0 && isOldLink && infoPagesCount <= 0) {
                     countOfPagesToSkip = countOfLinksInBase / countOfLinksOnPage - 1;
                     countOfLinksInBase = 0;
                     return false;

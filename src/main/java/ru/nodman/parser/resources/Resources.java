@@ -30,6 +30,7 @@ public class Resources {
     public static final int TITLE_LENGTH = 125;
     public static final int INFO_LENGTH = 19;
 
+    public static final int INFO_PAGES_COUNT = 5;
     public static final int OLD_PAGES_COUNT = 10;
 
     private static final int TEXT_SIZE = (int) (FRAME_WIDTH * 0.016);
