@@ -41,6 +41,7 @@ public class Resources {
     public static final Border IMAGE_BORDER = BorderFactory.createRaisedBevelBorder();
 
     public static final String TITLE = "MyParser";
+    public static final String TITLE_CONNECTING = "[CONNECTING] " + TITLE;
     public static final String TITLE_PARSING = "[PARSING] " + TITLE;
 
     public static final String PATTERN_FOR_URL = "{URL}";
@@ -48,6 +49,7 @@ public class Resources {
     public static final String DOWNLOAD_PATH = File.separator + "parser" + File.separator + "download" + File.separator;
     private static final String ICO_GREEN = "ico_green.png";
     private static final String ICO_RED = "ico_red.png";
+    private static final String ICO_YELLOW = "ico_yellow.png";
     private static final String ARROW_LEFT_PATH = "arrowLeft.png";
     private static final String ARROW_RIGHT_PATH = "arrowRight.png";
     private static final String ERROR_404_PATH = "404.png";
@@ -56,6 +58,7 @@ public class Resources {
 
     public static final ImageIcon ICON_GREEN = imageToIcon(ICO_GREEN, ICON_SIZE, ICON_SIZE);
     public static final ImageIcon ICON_RED = imageToIcon(ICO_RED, ICON_SIZE, ICON_SIZE);
+    public static final ImageIcon ICON_YELLOW= imageToIcon(ICO_YELLOW, ICON_SIZE, ICON_SIZE);
     public static final ImageIcon ARROW_LEFT = imageToIcon(ARROW_LEFT_PATH, IMAGE_SMALL_WIDTH, IMAGE_SMALL_HEIGHT);
     public static final ImageIcon ARROW_RIGHT = imageToIcon(ARROW_RIGHT_PATH, IMAGE_SMALL_WIDTH, IMAGE_SMALL_HEIGHT);
     public static final ImageIcon ERROR_404 = imageToIcon(ERROR_404_PATH, IMAGE_SMALL_WIDTH, IMAGE_SMALL_HEIGHT);

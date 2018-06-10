@@ -32,6 +32,7 @@ public class BaseHandler implements Runnable {
     private static final String COLUMN_LABEL_ADDRESS_START = "urls_address";
     private static final String COLUMN_LABEL_ADDRESS_END = "address";
     private static final String COLUMN_LABEL_LINKS_ADDRESS = "urls_address";
+    private static final String COLUMN_LABEL_LINKS_SECOND_ADDRESS = "urls_address_second";
     private static final String COLUMN_LABEL_DATE = "date";
     private static final String COLUMN_LABEL_BASE = "base";
     private static final String COLUMN_LABEL_PARSER_NAME = "parser_name";
@@ -77,6 +78,7 @@ public class BaseHandler implements Runnable {
                 caption.setAddress(resultForCaptions.getString(COLUMN_LABEL_ADDRESS_START)
                         + resultForCaptions.getString(COLUMN_LABEL_ADDRESS_END));
                 caption.setLinksAddress(resultForCaptions.getString(COLUMN_LABEL_LINKS_ADDRESS));
+                caption.setLinksSecondAddress(resultForCaptions.getString(COLUMN_LABEL_LINKS_SECOND_ADDRESS));
                 LocalDateTime time = null;
                 try {
                     time = resultForCaptions.getTimestamp(COLUMN_LABEL_DATE).toLocalDateTime();

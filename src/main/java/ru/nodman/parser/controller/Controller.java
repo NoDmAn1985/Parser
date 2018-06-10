@@ -2,15 +2,14 @@ package ru.nodman.parser.controller;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ru.nodman.parser.common.Caption;
-import ru.nodman.parser.common.ControlListener;
-import ru.nodman.parser.common.Page;
-import ru.nodman.parser.common.ViewListener;
+import ru.nodman.parser.common.*;
 import ru.nodman.parser.model.MainParser;
 import ru.nodman.parser.resources.Resources;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static ru.nodman.parser.common.ParserMode.CONNECTING;
 
 public class Controller implements ControlListener {
     private static final Logger LOG = LoggerFactory.getLogger(Resources.LOGGER_NAME);
@@ -27,7 +26,6 @@ public class Controller implements ControlListener {
 
     @Override
     public Page parse(Caption caption) {
-        viewListener.updateTitle(Resources.TITLE_PARSING);
         index = 0;
         this.pages = new ArrayList<>();
         mainParser.setControlListener(this);
@@ -42,7 +40,6 @@ public class Controller implements ControlListener {
         }
         Page page = pages.get(index);
         mainParser.saveLink(page, pages.size() - 1 == 0);
-        viewListener.updateTitle(Resources.TITLE);
         return page;
     }
 
@@ -73,6 +70,11 @@ public class Controller implements ControlListener {
     @Override
     public Caption[] getCaptions() {
         return mainParser.getCaptions().toArray(new Caption[0]);
+    }
+
+    @Override
+    public void changeParserMode(ParserMode mode) {
+        viewListener.changeMode(mode);
     }
 
     public void setViewListener(ViewListener viewListener) {

@@ -10,4 +10,6 @@ public interface ControlListener {
     void updateSize(int size);
 
     Caption[] getCaptions();
+
+    void changeParserMode(ParserMode mode);
 }

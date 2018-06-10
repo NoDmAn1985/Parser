@@ -6,6 +6,7 @@ import java.util.Date;
 public class Caption {
     private String name;
     private String address;
+    private String secondAddress;
     private LocalDateTime date;
     private String baseName;
     private int firstPage;
@@ -28,6 +29,9 @@ public class Caption {
 
     public String getAddress() {
         return address;
+    }
+    public String getSecondAddress() {
+        return secondAddress;
     }
 
     public LocalDateTime getDate() {
@@ -139,4 +143,7 @@ public class Caption {
         return linksAddress;
     }
 
+    public void setLinksSecondAddress(String linksSecondAddress) {
+        this.secondAddress = linksSecondAddress;
+    }
 }

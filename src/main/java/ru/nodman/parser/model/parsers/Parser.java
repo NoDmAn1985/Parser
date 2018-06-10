@@ -52,7 +52,7 @@ public abstract class Parser {
             try {
                 date = getDate(address);
             } catch (SocketTimeoutException socketEx) {
-                LOG.error("проблема с распознаванием даты (SocketTimeoutException), address = {}\", address");
+                LOG.error("проблема с распознаванием даты (SocketTimeoutException), address = {}", address);
             } catch (NullPointerException | org.jsoup.UncheckedIOException | IOException e) {
                 LOG.error("проблема с распознаванием даты, address = {}", address, e);
                 continue;

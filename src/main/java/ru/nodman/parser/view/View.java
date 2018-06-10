@@ -88,11 +88,10 @@ public class View implements ViewListener {
     private void initFrame() {
         frame = new JFrame();
         frame.setSize(Resources.FRAME_WIDTH, Resources.FRAME_HEIGHT);
-        frame.setTitle(Resources.TITLE);
         frame.setLocationRelativeTo(null);
         frame.setResizable(false);
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        frame.setIconImage(Resources.ICON_GREEN.getImage());
+        changeMode(ParserMode.MAIN);
         frame.setVisible(true);
     }
 
@@ -344,6 +343,12 @@ public class View implements ViewListener {
 
     }
 
+    @Override
+    public void changeMode(ParserMode mode) {
+        frame.setIconImage(mode.getIcon());
+        frame.setTitle(mode.getTitle());
+    }
+
     private void addImg(JLabel jlabel, int gridY, int gridX, int gridWidth, int gridHeight, boolean isSmall) {
         constants.gridy = gridY;
         constants.gridx = gridX;
@@ -386,11 +391,6 @@ public class View implements ViewListener {
                 "</p></html>");
     }
 
-    @Override
-    public void updateTitle(String text) {
-        frame.setTitle(text);
-    }
-
     private void setTitle(String text) {
         title.setText("<html><p align = 'center' ><span bgcolor = 'blue'>" +
                 text.substring(0, Math.min(text.length(), Resources.TITLE_LENGTH)) +
@@ -417,7 +417,7 @@ public class View implements ViewListener {
 
 
     private void parse() {
-        frame.setIconImage(Resources.ICON_RED.getImage());
+        changeMode(ParserMode.CONNECTING);
         clearTextAndImages();
         Resources.LOADING_ICON.setImageObserver(img.get(0));
         parse.setEnabled(false);
@@ -434,7 +434,7 @@ public class View implements ViewListener {
         parse.setEnabled(true);
         setButtonsOn(true);
         isLoadEnds = true;
-        frame.setIconImage(Resources.ICON_GREEN.getImage());
+        changeMode(ParserMode.MAIN);
     }
 
     private void clearTextAndImages() {

@@ -6,6 +6,7 @@ import ru.nodman.parser.Main;
 import ru.nodman.parser.common.Caption;
 import ru.nodman.parser.common.ControlListener;
 import ru.nodman.parser.common.Page;
+import ru.nodman.parser.common.ParserMode;
 import ru.nodman.parser.model.parsers.Parser;
 import ru.nodman.parser.resources.Resources;
 
@@ -59,6 +60,7 @@ public class MainParser {
         controlListener.updateSize(sortedPages.size());
 
         String url = caption.getAddress();
+        String urlReserve = caption.getSecondAddress();
         lastDate = caption.getDate();
         LOG.debug("последняя дата - {}", lastDate);
         int index = caption.getFirstPage();
@@ -78,13 +80,22 @@ public class MainParser {
             LOG.debug("смотрю страницу - {}", address);
             try {
                 tempListOfPage = parser.parseUrl(address);
-            } catch (IOException e) {
+            } catch (IOException | IndexOutOfBoundsException e) {
                 LOG.error("не смог распарсить address = {}, {}", address, e);
-                isEnd = false;
-                break;
+                url = urlReserve;
+                address = url + String.format(pagePattern, index);
+                LOG.debug("смотрю страницу - {}", address);
+                try {
+                    tempListOfPage = parser.parseUrl(address);
+                } catch (IOException ex) {
+                    LOG.error("не смог распарсить address = {}, {}", address, ex);
+                    isEnd = false;
+                    break;
+                }
             }
 
             if (countOfLinksOnPage == 0) {
+                controlListener.changeParserMode(ParserMode.PARSING);
                 countOfLinksOnPage = tempListOfPage.size();
             }
 
